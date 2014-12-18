@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html> 
+<head> 
+  <title>Simple Example</title> 
+
+  <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false" type="text/javascript"></script> 
+  <script src="/js/three.min.js"></script>
+  <script src="/js/GSVPano.js"></script>
+  <script src="/js/Hyperlapse.js"></script>
+  <link rel="stylesheet" type="text/css" href="stylesheets/css/bootstrap.min.css">
+  <style>
+
+  #pano {
+    width: 100%;
+  }
+
+  .incomplete {
+    background-color: red;
+  }
+  .complete {
+    background-color: #27ae60;
+  }
+  #map-canvas {
+    height: 500px;
+  }
+  @media(max-width: 768px){
+    .cont-btn {
+      width: 100%;
+    } 
+  }
+
+  </style>
+  <script> 
+
+    function init() {
+
+      var hyperlapse = window.hyperlapse = new Hyperlapse(document.getElementById('pano'), {
+        lookat: new google.maps.LatLng(37.81409525128964,-122.4775045005249),
+        zoom: 1,
+        use_lookat: true,
+        elevation: 50,
+        millis: 500,
+        width: window.innerWidth
+      });
+
+      window.onresize = function (){
+        hyperlapse.setSize(window.innerWidth, 400);
+      }
+
+      hyperlapse.onError = function(e) {
+        console.log(e);
+      };
+
+      hyperlapse.onLoadProgress = function () {
+        var loadProgress = document.getElementById("loadProgress");
+        loadProgress.innerHTML += "."
+      };
+
+      hyperlapse.onRouteComplete = function(e) {
+        hyperlapse.load();
+      };
+
+      hyperlapse.onLoadComplete = function(e) {
+        var loadProgress = document.getElementById("loadProgress");
+        loadProgress.classList.add("complete");
+        setTimeout(function () {
+          loadProgress.style.display = "none";
+        },200)
+        hyperlapse.play();
+      };
+
+      // Google Maps API stuff here...
+      var directions_service = new google.maps.DirectionsService();
+
+      var route = {
+        request:{
+          origin: new google.maps.LatLng(37.816480000000006,-122.47825,37),
+          destination: new google.maps.LatLng(37.81195,-122.47773000000001),
+          travelMode: google.maps.DirectionsTravelMode.DRIVING
+        }
+      };
+
+      directions_service.route(route.request, function(response, status) {
+        if (status == google.maps.DirectionsStatus.OK) {
+          hyperlapse.generate( {route:response} );
+        } else {
+          console.log(status);
+        }
+      });
+      var controls = document.getElementById("controls");
+
+      controls.addEventListener("click", function (event){
+        var btn = event.target;
+        switch (btn.id){
+          case "back":
+            hyperlapse.prev();
+            break;
+          case "toggle_play":
+            hyperlapse.isPlaying() ? hyperlapse.pause() : hyperlapse.play();
+            break;
+          case "next":
+            hyperlapse.next();
+            break;
+        }
+      })
+      var framerateControls = document.getElementById("framerate_controls");
+
+      framerateControls.addEventListener("click", function (event){
+        var btn = event.target;
+        switch (btn.id){
+          case "faster":
+            hyperlapse.millis > 50 ? hyperlapse.millis -= 20: alert("OOPS!");
+            break;
+          case "slower":
+            hyperlapse.millis += 20;
+            break;
+        }
+      })
+    }
+
+    window.onload = init;
+    
+
+  </script> 
+      <script type="text/javascript">
+      function initialize() {
+        var begin = new google.maps.LatLng(37.816480000000006,-122.47825,37);
+        var end = new google.maps.LatLng(37.81195,-122.47773000000001);
+        var lookat = new google.maps.LatLng(37.81409525128964,-122.4775045005249);
+        var mapOptions = {
+          center: begin,
+          zoom: 14
+        };
+        var map = new google.maps.Map(document.getElementById('map-canvas'),
+            mapOptions);
+        // To add the marker to the map, use the 'map' property
+        var startMarker = new google.maps.Marker({
+            position: begin,
+            draggable: true,
+            map: map,
+            title:"Start"
+        });
+        var endMarker = new google.maps.Marker({
+            position: end,
+            draggable: true,
+            map: map,
+            title:"End"
+        });
+        var lookatMarker = new google.maps.Marker({
+            position: lookat,
+            draggable: true,
+            map: map,
+            title:"lookat"
+        });
+        google.maps.event.addListener(startMarker, 'mouseup', function (e){
+          console.log("Dropped!!")
+          console.log(this)
+        });
+      }
+      google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+</head> 
+<body> 
+  <div id="pano"></div>
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-6 col-xs-offset-3 incomplete" id="loadProgress">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-offset-2 col-sm-offset-4 col-xs-8 col-sm-4">
+        <div id="controls" class="btn-toolbar" role="toolbar" aria-label="controls">
+          <div class="btn-group" role="group" aria-label="controls">
+            <button id="back" type="button" class="btn btn-default cont-btn">Back</button>
+            <button id="toggle_play" type="button" class="btn btn-default btn-primary cont-btn">Pause/Play</button>
+            <button id="next" type="button" class="btn btn-default cont-btn">Next</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-offset-3 col-sm-offset-5">        
+      <div id="framerate_controls" class="btn-toolbar" role="toolbar" aria-label="controls">
+          <div class="btn-group" role="group" aria-label="controls">
+            <button id="slower" type="button" class="btn btn-default">Slower</button>
+            <button id="faster" type="button" class="btn btn-default">Faster</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div id="map-canvas" class="col-xs-offset-3 col-xs-6"></div>
+  </div>
+  <div class="row">
+    <div class="col-xs-offset-1 col-xs-10"
+      <form>
+        <div class="form-group">
+          <input type="text" id="begin" class="form-control" placeholder="Start">
+        </div>
+        <div class="form-group">
+          <input type="text" id="end" class="form-control" placeholder="End">
+        </div>
+        <div>
+          <button class="btn btn-primary">Map It</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</body> 
+</html>
