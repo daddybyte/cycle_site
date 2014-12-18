@@ -12,7 +12,7 @@
 6 error Tell the package author to fix their package.json file. JSON.parse
 7 error System Darwin 14.0.0
 8 error command "node" "/usr/local/bin/npm" "install" "--save" "passport"
-9 error cwd /Users/slathbury/Desktop/GA_firstProject/cycle_site
+9 error cwd /Users/slathbury/Desktop/GA_firstProject/cycle_site/models
 10 error node -v v0.10.33
 11 error npm -v 1.4.28
 12 error file /Users/slathbury/Desktop/GA_firstProject/cycle_site/package.json
