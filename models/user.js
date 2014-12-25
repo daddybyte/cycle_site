@@ -35,8 +35,8 @@ module.exports = function(sequelize, DataTypes) {
         var hash = this.encryptPassword(password);
         this.create({
           email: email,
-          firstName: firstName,
-          lastName: lastName,
+         // firstName: firstName,
+          //lastName: lastName,
           password_digest: hash
 
         })

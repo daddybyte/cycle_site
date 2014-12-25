@@ -32,9 +32,11 @@ app.get("/signup", function (req, res) {
 
 app.post("/signup", function (req, res) {
   console.log(req.body);
-  db.users.createSecure(req.body.users.email, req.body.users.firstName, req.body.users.lastName, req.body.users.password_digest);
-  res.redirect("/map");
-  res.render("users/sign_up");
+  db.user.createSecure(req.body.user.email, req.body.user.password_digest,
+  	function(){ res.redirect('/signup');},
+  	function(){ res.redirect('/'); });
+//  res.redirect("/map");
+  //res.render("users/sign_up");
 });
 
 app.get("/map", function (req, res) {
@@ -67,8 +69,8 @@ app.get("/about", function (req, res) {
 
 
 app.listen(process.env.PORT || 3000, function() {
-	console.log("LISTENING")
-})
+	console.log("LISTENING");
+});
 
 
 // var express = require("express"),
